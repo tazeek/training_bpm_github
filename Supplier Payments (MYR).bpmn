@@ -1,0 +1,318 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_1iy6ghp" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.6.0">
+  <bpmn:collaboration id="Collaboration_10az1sb">
+    <bpmn:participant id="Participant_1ob5cc4" name="HR - Supplier Payments (MYR)" processRef="Supplier_Payments_MYR" />
+  </bpmn:collaboration>
+  <bpmn:process id="Supplier_Payments_MYR" name="HR - Supplier Payments (MYR)" isExecutable="true">
+    <bpmn:laneSet id="LaneSet_0r3ryd6">
+      <bpmn:lane id="Lane_05pctlt" name="Admin Ops / IT Admin">
+        <bpmn:flowNodeRef>Gateway_1r68k2l</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Event_1h9x4ud</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_1r79lty" name="Expense Control">
+        <bpmn:flowNodeRef>Activity_0d9oo76</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_1lhmr2r</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_1vsjbzj</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_0dgpqq1" name="Accounts">
+        <bpmn:flowNodeRef>Activity_1iwosro</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_1b5f4l9" name="Admin Ops">
+        <bpmn:flowNodeRef>Activity_07jvqul</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_1vwdlrn</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_0anuoo6</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_0vz901c</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Event_128x9vh</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:exclusiveGateway id="Gateway_1r68k2l" name="System invoice?">
+      <bpmn:incoming>Flow_0fhnwq4</bpmn:incoming>
+      <bpmn:outgoing>Flow_0nczb7w</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0nd9num</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:startEvent id="Event_1h9x4ud" name="Invoice received via email (admin/ it-admin@deriv.com">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="SystemInvoice" label="System invoice?" type="boolean" />
+          <camunda:formField id="Date" label="Date of invoices as at" type="date" />
+          <camunda:formField id="Company" label="Company" type="string" />
+          <camunda:formField id="InvoiceNo" label="Invoice no. (only applicable for system)" type="string" />
+          <camunda:formField id="InvoiceDescription" label="Invoice description (only applicable for system)" type="string" />
+        </camunda:formData>
+        <camunda:executionListener expression="${execution.setVariable(&#34;Subject&#34;, InvoiceDescription != &#34;&#34; ? InvoiceDescription : Date)}" event="end" />
+      </bpmn:extensionElements>
+      <bpmn:outgoing>Flow_0fhnwq4</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:userTask id="Activity_0d9oo76" name="Review agreement and invoice and save invoice verification in Dropbox" camunda:candidateGroups="ExpenseControl">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="Date" label="Date of invoices as at" type="date" />
+          <camunda:formField id="Company" label="Company" type="string" />
+          <camunda:formField id="InvoiceNo" label="Invoice no. (only applicable for system)" type="string" />
+          <camunda:formField id="InvoiceDescription" label="Invoice description (only applicable for system)" type="string" />
+          <camunda:formField id="Issue" label="Issue found?" type="boolean" />
+        </camunda:formData>
+        <camunda:taskListener class="com.deriv.bpm.camunda.sendemail.TaskListenerInterceptor" event="create" />
+        <camunda:taskListener class="com.deriv.bpm.camunda.sendemail.TaskListenerInterceptor" event="assignment" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0nd9num</bpmn:incoming>
+      <bpmn:outgoing>Flow_18p7ueo</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1w0apr4</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="Activity_1lhmr2r" name="Obtain justification from vendor through email" camunda:candidateGroups="ExpenseControl">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="Date" label="Date of invoices as at" type="date" />
+          <camunda:formField id="Company" label="Company" type="string" />
+          <camunda:formField id="InvoiceNo" label="Invoice no. (only applicable for system)" type="string" />
+          <camunda:formField id="InvoiceDescription" label="Invoice description (only applicable for system)" type="string" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_18p7ueo</bpmn:incoming>
+      <bpmn:outgoing>Flow_05pr11k</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="Activity_1vsjbzj" name="Obtain HOO approval via email and cc admin@deriv.com to proceed with payment" camunda:candidateGroups="ExpenseControl">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="Date" label="Date of invoices as at" type="date" />
+          <camunda:formField id="Company" label="Company" type="string" />
+          <camunda:formField id="InvoiceNo" label="Invoice no. (only applicable for system)" type="string" />
+          <camunda:formField id="InvoiceDescription" label="Invoice description (only applicable for system)" type="string" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1w0apr4</bpmn:incoming>
+      <bpmn:incoming>Flow_05pr11k</bpmn:incoming>
+      <bpmn:outgoing>Flow_1ypm7rv</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="Activity_07jvqul" name="Upload invoice to bank portal and update PV spreadsheet" camunda:candidateGroups="AdminOps">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="Date" label="Date of invoices as at" type="date" />
+          <camunda:formField id="Company" label="Company" type="string" />
+          <camunda:formField id="InvoiceNo" label="Invoice no. (only applicable for system)" type="string" />
+          <camunda:formField id="InvoiceDescription" label="Invoice description (only applicable for system)" type="string" />
+          <camunda:formField id="InvoiceDetails" label="Check invoice details" type="boolean" />
+          <camunda:formField id="PreviousPVNo" label="Check payment spreadsheet and include previous PV No. on invoice" type="boolean" />
+          <camunda:formField id="SignOnInvoice" label="Invoice signed by second checker" type="boolean" />
+          <camunda:formField id="PendingApprovalPaymentSlip" label="Download and print payment slip from the portal" type="boolean" />
+          <camunda:formField id="InvoiceDocuments" label="Pass invoice documents to the approver" type="boolean" />
+        </camunda:formData>
+        <camunda:taskListener class="com.deriv.bpm.camunda.sendemail.TaskListenerInterceptor" event="create" />
+        <camunda:taskListener class="com.deriv.bpm.camunda.sendemail.TaskListenerInterceptor" event="assignment" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1ypm7rv</bpmn:incoming>
+      <bpmn:incoming>Flow_0nczb7w</bpmn:incoming>
+      <bpmn:outgoing>Flow_0e5n7gw</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="Activity_1vwdlrn" name="Approve invoice payment and update PV spreadsheet" camunda:candidateGroups="AdminOps">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="Date" label="Date of invoices as at" type="date" />
+          <camunda:formField id="Company" label="Company" type="string" />
+          <camunda:formField id="InvoiceNo" label="Invoice no. (only applicable for system)" type="string" />
+          <camunda:formField id="InvoiceDescription" label="Invoice description (only applicable for system)" type="string" />
+          <camunda:formField id="ApprovePayment" label="Approve payment in bank portal and sign on the payment slip" type="boolean" />
+          <camunda:formField id="ApprovedPaymentSlip" label="Download and print the approved payment slip and pass it to admin" type="boolean" />
+        </camunda:formData>
+        <camunda:taskListener class="com.deriv.bpm.camunda.sendemail.TaskListenerInterceptor" event="create" />
+        <camunda:taskListener class="com.deriv.bpm.camunda.sendemail.TaskListenerInterceptor" event="assignment" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0e5n7gw</bpmn:incoming>
+      <bpmn:outgoing>Flow_0lvqdyh</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="Activity_0anuoo6" name="Update details on Payment Voucher" camunda:candidateGroups="AdminOps">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="Date" label="Date of invoices as at" type="date" />
+          <camunda:formField id="Company" label="Company" type="string" />
+          <camunda:formField id="InvoiceNo" label="Invoice no. (only applicable for system)" type="string" />
+          <camunda:formField id="InvoiceDescription" label="Invoice description (only applicable for system)" type="string" />
+          <camunda:formField id="TaxInvoice" label="Tax invoice received" type="boolean" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0lvqdyh</bpmn:incoming>
+      <bpmn:outgoing>Flow_03kndol</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="Activity_1iwosro" name="Perform double entry in Xero after receiving invoice documents" camunda:candidateGroups="Accounts">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="Date" label="Date of invoices as at" type="date" />
+          <camunda:formField id="Company" label="Company" type="string" />
+          <camunda:formField id="InvoiceNo" label="Invoice no. (only applicable for system)" type="string" />
+          <camunda:formField id="InvoiceDescription" label="Invoice description (only applicable for system)" type="string" />
+        </camunda:formData>
+        <camunda:taskListener class="com.deriv.bpm.camunda.sendemail.TaskListenerInterceptor" event="create" />
+        <camunda:taskListener class="com.deriv.bpm.camunda.sendemail.TaskListenerInterceptor" event="assignment" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_03kndol</bpmn:incoming>
+      <bpmn:outgoing>Flow_1hi70o2</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="Activity_0vz901c" name="File hard copy and save soft copy documents in Dropbox" camunda:candidateGroups="AdminOps">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="Date" label="Date of invoices as at" type="date" />
+          <camunda:formField id="Company" label="Company" type="string" />
+          <camunda:formField id="InvoiceNo" label="Invoice no. (only applicable for system)" type="string" />
+          <camunda:formField id="InvoiceDescription" label="Invoice description (only applicable for system)" type="string" />
+        </camunda:formData>
+        <camunda:taskListener class="com.deriv.bpm.camunda.sendemail.TaskListenerInterceptor" event="create" />
+        <camunda:taskListener class="com.deriv.bpm.camunda.sendemail.TaskListenerInterceptor" event="assignment" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1hi70o2</bpmn:incoming>
+      <bpmn:outgoing>Flow_106l1i1</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:endEvent id="Event_128x9vh" name="Payment complete">
+      <bpmn:incoming>Flow_106l1i1</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_05pr11k" sourceRef="Activity_1lhmr2r" targetRef="Activity_1vsjbzj" />
+    <bpmn:sequenceFlow id="Flow_1w0apr4" name="No issue found" sourceRef="Activity_0d9oo76" targetRef="Activity_1vsjbzj">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${!Issue}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_18p7ueo" name="Issue found" sourceRef="Activity_0d9oo76" targetRef="Activity_1lhmr2r">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${Issue}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1ypm7rv" sourceRef="Activity_1vsjbzj" targetRef="Activity_07jvqul" />
+    <bpmn:sequenceFlow id="Flow_0nczb7w" name="No" sourceRef="Gateway_1r68k2l" targetRef="Activity_07jvqul">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${!SystemInvoice}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1hi70o2" sourceRef="Activity_1iwosro" targetRef="Activity_0vz901c" />
+    <bpmn:sequenceFlow id="Flow_03kndol" sourceRef="Activity_0anuoo6" targetRef="Activity_1iwosro" />
+    <bpmn:sequenceFlow id="Flow_0nd9num" name="Yes" sourceRef="Gateway_1r68k2l" targetRef="Activity_0d9oo76">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${SystemInvoice}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0fhnwq4" sourceRef="Event_1h9x4ud" targetRef="Gateway_1r68k2l" />
+    <bpmn:sequenceFlow id="Flow_0e5n7gw" sourceRef="Activity_07jvqul" targetRef="Activity_1vwdlrn" />
+    <bpmn:sequenceFlow id="Flow_0lvqdyh" sourceRef="Activity_1vwdlrn" targetRef="Activity_0anuoo6" />
+    <bpmn:sequenceFlow id="Flow_106l1i1" sourceRef="Activity_0vz901c" targetRef="Event_128x9vh" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_10az1sb">
+      <bpmndi:BPMNShape id="Participant_1ob5cc4_di" bpmnElement="Participant_1ob5cc4" isHorizontal="true">
+        <dc:Bounds x="160" y="80" width="1810" height="760" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_05pctlt_di" bpmnElement="Lane_05pctlt" isHorizontal="true">
+        <dc:Bounds x="190" y="80" width="1780" height="190" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_1r79lty_di" bpmnElement="Lane_1r79lty" isHorizontal="true">
+        <dc:Bounds x="190" y="270" width="1780" height="190" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_0dgpqq1_di" bpmnElement="Lane_0dgpqq1" isHorizontal="true">
+        <dc:Bounds x="190" y="650" width="1780" height="190" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_1b5f4l9_di" bpmnElement="Lane_1b5f4l9" isHorizontal="true">
+        <dc:Bounds x="190" y="460" width="1780" height="190" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_05pr11k_di" bpmnElement="Flow_05pr11k">
+        <di:waypoint x="830" y="360" />
+        <di:waypoint x="930" y="360" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1w0apr4_di" bpmnElement="Flow_1w0apr4">
+        <di:waypoint x="570" y="400" />
+        <di:waypoint x="570" y="430" />
+        <di:waypoint x="980" y="430" />
+        <di:waypoint x="980" y="400" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="725" y="433" width="74" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_18p7ueo_di" bpmnElement="Flow_18p7ueo">
+        <di:waypoint x="620" y="360" />
+        <di:waypoint x="730" y="360" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="651" y="363" width="57" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1ypm7rv_di" bpmnElement="Flow_1ypm7rv">
+        <di:waypoint x="1030" y="360" />
+        <di:waypoint x="1120" y="360" />
+        <di:waypoint x="1120" y="520" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1475" y="-297" width="70" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0nczb7w_di" bpmnElement="Flow_0nczb7w">
+        <di:waypoint x="435" y="205" />
+        <di:waypoint x="435" y="560" />
+        <di:waypoint x="1070" y="560" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="442" y="245" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1hi70o2_di" bpmnElement="Flow_1hi70o2">
+        <di:waypoint x="1570" y="760" />
+        <di:waypoint x="1720" y="760" />
+        <di:waypoint x="1720" y="600" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_03kndol_di" bpmnElement="Flow_03kndol">
+        <di:waypoint x="1520" y="600" />
+        <di:waypoint x="1520" y="720" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0nd9num_di" bpmnElement="Flow_0nd9num">
+        <di:waypoint x="460" y="180" />
+        <di:waypoint x="570" y="180" />
+        <di:waypoint x="570" y="320" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="506" y="163" width="18" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0fhnwq4_di" bpmnElement="Flow_0fhnwq4">
+        <di:waypoint x="338" y="180" />
+        <di:waypoint x="410" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0e5n7gw_di" bpmnElement="Flow_0e5n7gw">
+        <di:waypoint x="1170" y="560" />
+        <di:waypoint x="1270" y="560" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0lvqdyh_di" bpmnElement="Flow_0lvqdyh">
+        <di:waypoint x="1370" y="560" />
+        <di:waypoint x="1470" y="560" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_106l1i1_di" bpmnElement="Flow_106l1i1">
+        <di:waypoint x="1770" y="560" />
+        <di:waypoint x="1862" y="560" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Gateway_1r68k2l_di" bpmnElement="Gateway_1r68k2l" isMarkerVisible="true">
+        <dc:Bounds x="410" y="155" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="395" y="133" width="81" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1h9x4ud_di" bpmnElement="Event_1h9x4ud">
+        <dc:Bounds x="302" y="162" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="277" y="205" width="88" height="53" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1utvcr5_di" bpmnElement="Activity_0d9oo76">
+        <dc:Bounds x="520" y="320" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1xq2f3q_di" bpmnElement="Activity_1lhmr2r">
+        <dc:Bounds x="730" y="320" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0x3bu3f_di" bpmnElement="Activity_1vsjbzj">
+        <dc:Bounds x="930" y="320" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_07jvqul_di" bpmnElement="Activity_07jvqul">
+        <dc:Bounds x="1070" y="520" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1vwdlrn_di" bpmnElement="Activity_1vwdlrn">
+        <dc:Bounds x="1270" y="520" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1mv1029_di" bpmnElement="Activity_0anuoo6">
+        <dc:Bounds x="1470" y="520" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1iwosro_di" bpmnElement="Activity_1iwosro">
+        <dc:Bounds x="1470" y="720" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0vz901c_di" bpmnElement="Activity_0vz901c">
+        <dc:Bounds x="1670" y="520" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_128x9vh_di" bpmnElement="Event_128x9vh">
+        <dc:Bounds x="1862" y="542" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1858" y="585" width="45" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
