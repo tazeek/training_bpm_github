@@ -185,7 +185,7 @@
     <bpmn:sequenceFlow id="Flow_0e5n7gw" sourceRef="Activity_07jvqul" targetRef="Activity_1vwdlrn" />
     <bpmn:sequenceFlow id="Flow_0lvqdyh" sourceRef="Activity_1vwdlrn" targetRef="Activity_0anuoo6" />
     <bpmn:sequenceFlow id="Flow_106l1i1" sourceRef="Activity_0vz901c" targetRef="Event_128x9vh" />
-    <bpmn:task id="Activity_1cz74tz" />
+    <bpmn:task id="Activity_1cz74tz" name="sdfg" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_10az1sb">
