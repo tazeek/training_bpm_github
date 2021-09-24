@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_00v9501" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.6.0">
+  <bpmn:collaboration id="Collaboration_068jzrl">
+    <bpmn:participant id="Participant_1yyq4pr" name="Accounts - Cloud Expense Report" processRef="Cloud_Expense_Report" />
+  </bpmn:collaboration>
+  <bpmn:process id="Cloud_Expense_Report" name="Accounts - Cloud Expense Report" isExecutable="true">
+    <bpmn:sequenceFlow id="Flow_0mdsibs" sourceRef="Activity_1xq0tx7" targetRef="Activity_0kegwhs" />
+    <bpmn:sequenceFlow id="Flow_193mt5h" sourceRef="Event_10x2g5v" targetRef="Activity_1xq0tx7" />
+    <bpmn:sequenceFlow id="Flow_1xrgmkm" sourceRef="Activity_0kegwhs" targetRef="Event_04z7fko" />
+    <bpmn:startEvent id="Event_10x2g5v" name="Expense report generated from Xero">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="Month" label="Month" type="string" />
+        </camunda:formData>
+        <camunda:executionListener expression="${execution.setVariable(&#34;Subject&#34;, Month)}" event="end" />
+      </bpmn:extensionElements>
+      <bpmn:outgoing>Flow_193mt5h</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:userTask id="Activity_1xq0tx7" name="Perform expense analysis in Cloud_monthly_dept google sheet" camunda:candidateGroups="Accounts">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="Month" label="Month" type="string">
+            <camunda:validation>
+              <camunda:constraint name="readonly" />
+            </camunda:validation>
+          </camunda:formField>
+          <camunda:formField id="CloudExpenseReportFromTableau" label="Generate Cloud Expense Report from Tableau and save in Cloud_monthly_dept google sheet" type="boolean" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_193mt5h</bpmn:incoming>
+      <bpmn:outgoing>Flow_0mdsibs</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="Activity_0kegwhs" name="Email HOD to obtain approval on Cloud_monthly_dept google sheet" camunda:candidateGroups="Accounts">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="Month" label="Month" type="string">
+            <camunda:validation>
+              <camunda:constraint name="readonly" />
+            </camunda:validation>
+          </camunda:formField>
+          <camunda:formField id="Email" label="Send email" type="boolean" />
+          <camunda:formField id="Approval" label="Approval obtained" type="boolean" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0mdsibs</bpmn:incoming>
+      <bpmn:outgoing>Flow_1xrgmkm</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:endEvent id="Event_04z7fko" name="Report complete">
+      <bpmn:incoming>Flow_1xrgmkm</bpmn:incoming>
+    </bpmn:endEvent>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_068jzrl">
+      <bpmndi:BPMNShape id="Participant_1yyq4pr_di" bpmnElement="Participant_1yyq4pr" isHorizontal="true">
+        <dc:Bounds x="170" y="40" width="710" height="250" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_0mdsibs_di" bpmnElement="Flow_0mdsibs">
+        <di:waypoint x="500" y="140" />
+        <di:waypoint x="600" y="140" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_193mt5h_di" bpmnElement="Flow_193mt5h">
+        <di:waypoint x="308" y="140" />
+        <di:waypoint x="400" y="140" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1xrgmkm_di" bpmnElement="Flow_1xrgmkm">
+        <di:waypoint x="700" y="140" />
+        <di:waypoint x="782" y="140" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_10x2g5v_di" bpmnElement="Event_10x2g5v">
+        <dc:Bounds x="272" y="122" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="253" y="165" width="75" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1xq0tx7_di" bpmnElement="Activity_1xq0tx7">
+        <dc:Bounds x="400" y="100" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0waao3f_di" bpmnElement="Activity_0kegwhs">
+        <dc:Bounds x="600" y="100" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_04z7fko_di" bpmnElement="Event_04z7fko">
+        <dc:Bounds x="782" y="122" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="759" y="163" width="81" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
